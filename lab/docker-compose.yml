@@ -1,0 +1,59 @@
+name: ats-ipallow-method-case
+
+services:
+  origin:
+    image: python:3.12-slim
+    environment:
+      PYTHONUNBUFFERED: "1"
+      LAB_WITNESS: "ATS-IPALLOW-METHOD-CASE-WITNESS"
+    volumes:
+      - ./origin.py:/lab/origin.py:ro
+    command: ["python3", "/lab/origin.py"]
+    expose:
+      - "8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+      start_period: 2s
+    restart: "no"
+
+  ats:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ats-ipallow-method-case:local
+    depends_on:
+      origin:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:18710:8080"
+    expose:
+      - "8080"
+    environment:
+      PATH: /opt/ats/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    init: true
+    restart: "no"
+
+  attacker:
+    image: python:3.12-slim
+    depends_on:
+      - ats
+    environment:
+      PYTHONUNBUFFERED: "1"
+      ATS_HOST: ats
+      ATS_PORT: "8080"
+      ATS_HOST_HEADER: ats.example
+      LAB_LABEL: ats-ipallow-method-case
+      LAB_WITNESS: ATS-IPALLOW-METHOD-CASE-WITNESS
+    volumes:
+      - ./poc.py:/lab/poc.py:ro
+    command: ["sleep", "infinity"]
+    restart: "no"
