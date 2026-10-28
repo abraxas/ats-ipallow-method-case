@@ -13,6 +13,10 @@
   &nbsp;·&nbsp;
   <a href="https://github.com/abraxas/ats-ipallow-method-case">ats-ipallow-method-case</a>
 </p>
+<p align="center">
+  Write-up: <a href="https://abraxaslabs.tech/research/ats-ipallow-method-case"><strong>https://abraxaslabs.tech/research/ats-ipallow-method-case</strong></a>
+</p>
+
 
 # ats-ipallow-method-case
 
